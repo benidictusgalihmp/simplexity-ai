@@ -178,11 +178,11 @@ class MinimaxGroup3:
                         is_player1_can_win = False
                         is_player2_can_win = False
 
-                    if self.calculate_piece_score(board[i][j + k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR) == -1:
+                    if self.calculate_piece_score(board.board[i][j + k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR) == -1:
                         player1_temp_score = 0
                         is_player1_can_win = False
 
-                    if self.calculate_piece_score(board[i][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR) == -1:
+                    if self.calculate_piece_score(board.board[i][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR) == -1:
                         player2_temp_score = 0
                         is_player2_can_win = False
 
@@ -193,10 +193,10 @@ class MinimaxGroup3:
                         count_piece += 1
 
                     if is_player1_can_win:
-                        player1_temp_score += self.calculate_piece_score(board[i][j + k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR)
+                        player1_temp_score += self.calculate_piece_score(board.board[i][j + k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR)
 
                     if is_player2_can_win:
-                        player2_temp_score += self.calculate_piece_score(board[i][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
+                        player2_temp_score += self.calculate_piece_score(board.board[i][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
 
                 if count_piece == 4:
                     horizontal_score += player1_temp_score * INFINITY - player2_temp_score * INFINITY
@@ -234,11 +234,11 @@ class MinimaxGroup3:
                         is_player1_can_win = False
                         is_player2_can_win = False
 
-                    if self.calculate_piece_score(board[i - k][j], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR) == -1:
+                    if self.calculate_piece_score(board.board[i - k][j], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR) == -1:
                         player1_temp_score = 0
                         is_player1_can_win = False
 
-                    if self.calculate_piece_score(board[i - k][j], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR) == -1:
+                    if self.calculate_piece_score(board.board[i - k][j], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR) == -1:
                         player2_temp_score = 0
                         is_player2_can_win = False
 
@@ -249,10 +249,10 @@ class MinimaxGroup3:
                         count_piece += 1
 
                     if is_player1_can_win:
-                        player1_temp_score += self.calculate_piece_score(board[i - k][j], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR)
+                        player1_temp_score += self.calculate_piece_score(board.board[i - k][j], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR)
 
                     if is_player2_can_win:
-                        player2_temp_score += self.calculate_piece_score(board[i - k][j], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
+                        player2_temp_score += self.calculate_piece_score(board.board[i - k][j], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
 
                 if count_piece == 4:
                     vertical_score += player1_temp_score * INFINITY - player2_temp_score * INFINITY
@@ -290,11 +290,11 @@ class MinimaxGroup3:
                         is_player1_can_win = False
                         is_player2_can_win = False
 
-                    if self.calculate_piece_score(board[i - k][j + k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR) == -1:
+                    if self.calculate_piece_score(board.board[i - k][j + k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR) == -1:
                         player1_temp_score = 0
                         is_player1_can_win = False
 
-                    if self.calculate_piece_score(board[i - k][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR) == -1:
+                    if self.calculate_piece_score(board.board[i - k][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR) == -1:
                         player2_temp_score = 0
                         is_player2_can_win = False
 
@@ -305,10 +305,10 @@ class MinimaxGroup3:
                         count_piece += 1
 
                     if is_player1_can_win:
-                        player1_temp_score += self.calculate_piece_score(board[i - k][j + k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR)
+                        player1_temp_score += self.calculate_piece_score(board.board[i - k][j + k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR)
 
                     if is_player2_can_win:
-                        player2_temp_score += self.calculate_piece_score(board[i - k][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
+                        player2_temp_score += self.calculate_piece_score(board.board[i - k][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
 
                 if count_piece == 4:
                     diagonal_right_score += player1_temp_score * INFINITY - player2_temp_score * INFINITY
@@ -346,11 +346,11 @@ class MinimaxGroup3:
                         is_player1_can_win = False
                         is_player2_can_win = False
 
-                    if self.calculate_piece_score(board[i - k][j - k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR) == -1:
+                    if self.calculate_piece_score(board.board[i - k][j - k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR) == -1:
                         player1_temp_score = 0
                         is_player1_can_win = False
 
-                    if self.calculate_piece_score(board[i - k][j - k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR) == -1:
+                    if self.calculate_piece_score(board.board[i - k][j - k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR) == -1:
                         player2_temp_score = 0
                         is_player2_can_win = False
 
@@ -361,10 +361,10 @@ class MinimaxGroup3:
                         count_piece += 1
 
                     if is_player1_can_win:
-                        player1_temp_score += self.calculate_piece_score(board[i - k][j - k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR)
+                        player1_temp_score += self.calculate_piece_score(board.board[i - k][j - k], GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR)
 
                     if is_player2_can_win:
-                        player2_temp_score += self.calculate_piece_score(board[i - k][j - k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
+                        player2_temp_score += self.calculate_piece_score(board.board[i - k][j - k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
 
                 if count_piece == 4:
                     diagonal_left_score += player1_temp_score * INFINITY - player2_temp_score * INFINITY
