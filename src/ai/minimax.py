@@ -3,20 +3,9 @@ from time import time
 
 from src.constant import ShapeConstant
 from src.model import State
+from src.utility import place
 
 from typing import Tuple, List
-
-
-class Minimax:
-    def __init__(self):
-        pass
-
-    def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
-        self.thinking_time = time() + thinking_time
-
-        best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
-
-        return best_movement
 
 import random
 from copy import deepcopy
@@ -32,18 +21,84 @@ from src.constant import GameConstant
 
 from typing import Tuple, List
 
+INFINITY = 999999
+arrShape = [ShapeConstant.CROSS, ShapeConstant.CIRCLE]
 
-class Minimax2:
+class Minimax:
     def __init__(self):
         pass
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
 
-        best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
+        choosenCol = self.pruningTree(2, -INFINITY, INFINITY, state, n_player, self.thinking_time)[1]
+        choosenShape = self.pruningTree(2, -INFINITY, INFINITY, state, n_player, self.thinking_time)[2]
+
+        best_movement = (choosenCol, choosenShape) #minimax algorithm
 
         return best_movement
+    
+    def pruningTree(self, depth: int, alpha: int, beta: int, state: State, n_player: int, thinking_time: float):
+        try:
+            state_copy = state.copy()
 
+            choosenCol = random.choice(self.find_valid_col(state))
+            choosenShape = random.choice(arrShape)
+
+            if(depth == 0 or is_win(state.board)):
+                return (0, choosenCol, choosenShape)
+
+            if(thinking_time > 3):
+                raise Exception
+            
+            if(n_player):
+                v = -INFINITY
+                for cols in self.find_valid_col(state):
+                    for shape in arrShape:
+                        placement = place(state_copy, n_player, shape, cols)
+                        nodeValue = pruningTree(depth - 1, alpha, beta, state_copy, 0)[0]
+                        v = max(v, nodeValue)
+
+                        if(nodeValue > v):
+                            choosenCol = cols
+                            choosenShape = shape
+
+                        alpha = max(alpha, nodeValue)
+                        if(beta <= alpha):
+                            break
+                return (v, choosenCol, choosenShape)
+
+            else:
+                v = INFINITY
+                for cols in self.find_valid_col(state):
+                    for shape in arrShape:
+                        placement = place(state_copy, n_player, shape, cols)
+                        nodeValue = pruningTree(depth - 1, alpha, beta, state_copy, 1)[0]
+                        v = min(v, nodeValue)
+
+                        if(nodeValue > v):
+                            choosenCol = cols
+                            choosenShape = shape
+
+                        beta = min(beta, nodeValue)
+                        if(beta <= alpha):
+                            break
+                return (v, choosenCol, choosenShape)
+
+        except Exception:
+            return(0, choosenCol, choosenShape)
+    
+    def find_valid_col(state: State):
+        validCol = []
+
+        for iCol in range(state.board.col):
+            arrcol = state.board.board[iCol]
+
+            if(ShapeConstant.BLANK in arrcol):
+                validCol.append(iCol)
+        
+        return validCol
+    
     def calculate_piece_score(self, board: Board, row: int, col: int, player_shape: str, player_color: str):
         if player_color == ColorConstant.RED and player_shape == ShapeConstant.CIRCLE:
             if board.board[row][col].color == ColorConstant.RED and board.board[row][col].shape == ShapeConstant.CIRCLE:
@@ -314,3 +369,4 @@ class Minimax2:
         print("diagonal right score: " + str(self.calculate_diagonal_right_score(board, config)))
         print("diagonal left score: " + str(self.calculate_diagonal_left_score(board, config)))
         return self.calculate_horizontal_score(board, config) + self.calculate_vertical_score(board, config) + self.calculate_diagonal_right_score(board, config) + self.calculate_diagonal_left_score(board, config)
+    
