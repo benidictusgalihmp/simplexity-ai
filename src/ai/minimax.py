@@ -10,7 +10,7 @@ from src.utility import *
 
 from typing import Tuple, List
 
-INFINITY = 999999
+INFINITY = 99999999
 arrShape = [ShapeConstant.CROSS, ShapeConstant.CIRCLE]
 
 class MinimaxGroup3:
@@ -20,75 +20,74 @@ class MinimaxGroup3:
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
 
-        choosenCol = self.pruningTree(3, -INFINITY, INFINITY, state, n_player, self.thinking_time)[1]
-        choosenShape = self.pruningTree(3, -INFINITY, INFINITY, state, n_player, self.thinking_time)[2]
+        choosen_col, choosen_shape = self.pruningTree(state, n_player)
 
-        best_movement = (choosenCol, choosenShape) #minimax algorithm
+        best_movement = (choosen_col, choosen_shape) #minimax algorithm
 
         return best_movement
     
-    '''
-    
-    
-    @params : 
-    @return : 
-    '''
-    def pruningTree(self, depth: int, alpha: int, beta: int, state: State, n_player: int, thinking_time: float):
-        # try:
-        arrReturn = []
-        state_copy = copy.deepcopy(state)
+    def pruningTree(self, state, n_player):
+        choosen_col = random.choice(self.find_valid_col(state))
+        choosen_shape = random.choice(arrShape)
+        for depth_now in range(1, 1000):
+            val, col, shape = self.pruningTreeRecursive(depth_now, -INFINITY, INFINITY, state, n_player, self.thinking_time, random.choice(self.find_valid_col(state)), random.choice(arrShape))
 
-        choosenCol = 0
-        choosenShape = ShapeConstant.CIRCLE
+            if val == INFINITY or val == -INFINITY:
+                break
 
+            choosen_col = col
+            choosen_shape = shape
+
+        return choosen_col, choosen_shape
+
+    def pruningTreeRecursive(self, depth: int, alpha: int, beta: int, state: State, n_player: int, thinking_time: float, choosen_col: int, choosen_shape: str):
         if(depth == 0 or is_full(state.board) or is_win(state.board)):
-            val = self.objective_function(state_copy.board)
-            return val, choosenCol, choosenShape
+            val = self.objective_function(state.board)
+            return val, choosen_col, choosen_shape
 
-        # if(time() > self.thinking_time):
-        #     raise Exception
-        
-        if(n_player):
+        if(time() > self.thinking_time):
+            if n_player == 0:
+                return -INFINITY, choosen_col, choosen_shape
+            else:
+                return INFINITY, choosen_col, choosen_shape
+
+        if(n_player == 0):
             v = -INFINITY
             for cols in self.find_valid_col(state):
                 for shape in arrShape:
+                    state_copy = copy.deepcopy(state)
                     placement = place(state_copy, n_player, shape, cols)
-                    tupVar = self.pruningTree(depth - 1, alpha, beta, state_copy, 0, thinking_time)
+                    tupVar = self.pruningTreeRecursive(depth - 1, alpha, beta, state_copy, 1, thinking_time, cols, shape)
+                        
                     nodeValue = tupVar[0]
-                    v = max(v, nodeValue)
-
                     if(nodeValue > v):
-                        choosenCol = cols
-                        choosenShape = shape
+                        choosen_col = cols
+                        choosen_shape = shape
+                    v = max(v, nodeValue)
 
                     alpha = max(alpha, nodeValue)
                     if(beta <= alpha):
                         break
-            return v, choosenCol, choosenShape
+            return v, choosen_col, choosen_shape
 
         else:
             v = INFINITY
             for cols in self.find_valid_col(state):
                 for shape in arrShape:
+                    state_copy = copy.deepcopy(state)
                     placement = place(state_copy, n_player, shape, cols)
-                    tupVar = self.pruningTree(depth - 1, alpha, beta, state_copy, 0, thinking_time)
+                    tupVar = self.pruningTreeRecursive(depth - 1, alpha, beta, state_copy, 0, thinking_time, cols, shape)
+                        
                     nodeValue = tupVar[0]
-                    v = min(v, nodeValue)
-
                     if(nodeValue < v):
-                        choosenCol = cols
-                        choosenShape = shape
+                        choosen_col = cols
+                        choosen_shape = shape
+                    v = min(v, nodeValue)
 
                     beta = min(beta, nodeValue)
                     if(beta <= alpha):
                         break
-            return v, choosenCol, choosenShape
-
-        # except Exception as error:
-        #     print(error)
-        #     choosenCol = 0 # random.choice(self.find_valid_col(state))
-        #     choosenShape = ShapeConstant.CIRCLE # random.choice(arrShape)
-        #     return 0, choosenCol, choosenShape
+            return v, choosen_col, choosen_shape
     
     '''
     Finding all valid columns index in State.board
@@ -101,10 +100,10 @@ class MinimaxGroup3:
         arrcol = []
         blankObj = Piece(ShapeConstant.BLANK,ColorConstant.BLACK)
 
-        for iCol in range(0, state.board.col - 1):
-            arrcol = state.board.board[iCol]    # get array elemen in column[iCol]
+        for iCol in range(state.board.col):
+            piece = state.board.board[0][iCol]    # get array elemen in column[iCol]
 
-            if(blankObj in arrcol):             # BLANK shape in column[iCol]
+            if(piece == blankObj):             # BLANK shape in column[iCol]
                 validCol.append(iCol)           # add iCol into array validCol
         
         return validCol
@@ -199,7 +198,7 @@ class MinimaxGroup3:
                         player2_temp_score += self.calculate_piece_score(board.board[i][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
 
                 if count_piece == 4:
-                    horizontal_score += player1_temp_score * INFINITY - player2_temp_score * INFINITY
+                    horizontal_score += player1_temp_score * 999 - player2_temp_score * 999
                 else:
                     horizontal_score += player1_temp_score * count_piece - player2_temp_score * count_piece
                 
@@ -255,7 +254,7 @@ class MinimaxGroup3:
                         player2_temp_score += self.calculate_piece_score(board.board[i - k][j], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
 
                 if count_piece == 4:
-                    vertical_score += player1_temp_score * INFINITY - player2_temp_score * INFINITY
+                    vertical_score += player1_temp_score * 999 - player2_temp_score * 999
                 else:
                     vertical_score += player1_temp_score * count_piece - player2_temp_score * count_piece
 
@@ -311,7 +310,7 @@ class MinimaxGroup3:
                         player2_temp_score += self.calculate_piece_score(board.board[i - k][j + k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
 
                 if count_piece == 4:
-                    diagonal_right_score += player1_temp_score * INFINITY - player2_temp_score * INFINITY
+                    diagonal_right_score += player1_temp_score * 999 - player2_temp_score * 999
                 else:
                     diagonal_right_score += player1_temp_score * count_piece - player2_temp_score * count_piece
 
@@ -367,16 +366,12 @@ class MinimaxGroup3:
                         player2_temp_score += self.calculate_piece_score(board.board[i - k][j - k], GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR)
 
                 if count_piece == 4:
-                    diagonal_left_score += player1_temp_score * INFINITY - player2_temp_score * INFINITY
+                    diagonal_left_score += player1_temp_score * 999 - player2_temp_score * 999
                 else:
                     diagonal_left_score += player1_temp_score * count_piece - player2_temp_score * count_piece
 
         return diagonal_left_score
 
     def objective_function(self, board: Board):
-        print("horizontal score: " + str(self.calculate_horizontal_score(board)))
-        print("vertical score: " + str(self.calculate_vertical_score(board)))
-        print("diagonal right score: " + str(self.calculate_diagonal_right_score(board)))
-        print("diagonal left score: " + str(self.calculate_diagonal_left_score(board)))
         return self.calculate_horizontal_score(board) + self.calculate_vertical_score(board) + self.calculate_diagonal_right_score(board) + self.calculate_diagonal_left_score(board)
     
