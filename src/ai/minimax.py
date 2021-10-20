@@ -1,30 +1,19 @@
+from os import stat
 import random
+import copy
 from time import time
 
 from src.constant import ShapeConstant
-from src.model import State
-from src.utility import place
-
-from typing import Tuple, List
-
-import random
-from copy import deepcopy
-from time import time
-
+from src.model import State, Board
+from src.constant import ColorConstant, ShapeConstant, GameConstant
 from src.utility import *
-from src.model import State
-from src.model import Board
-from src.model import Config
-from src.constant import ColorConstant
-from src.constant import ShapeConstant
-from src.constant import GameConstant
 
 from typing import Tuple, List
 
 INFINITY = 999999
 arrShape = [ShapeConstant.CROSS, ShapeConstant.CIRCLE]
 
-class Minimax:
+class MinimaxGroup3:
     def __init__(self):
         pass
 
@@ -38,64 +27,85 @@ class Minimax:
 
         return best_movement
     
-    def pruningTree(self, depth: int, alpha: int, beta: int, state: State, n_player: int, thinking_time: float):
-        try:
-            state_copy = state.copy()
-
-            choosenCol = random.choice(self.find_valid_col(state))
-            choosenShape = random.choice(arrShape)
-
-            if(depth == 0 or is_win(state.board)):
-                return (0, choosenCol, choosenShape)
-
-            if(thinking_time > 3):
-                raise Exception
-            
-            if(n_player):
-                v = -INFINITY
-                for cols in self.find_valid_col(state):
-                    for shape in arrShape:
-                        placement = place(state_copy, n_player, shape, cols)
-                        nodeValue = pruningTree(depth - 1, alpha, beta, state_copy, 0)[0]
-                        v = max(v, nodeValue)
-
-                        if(nodeValue > v):
-                            choosenCol = cols
-                            choosenShape = shape
-
-                        alpha = max(alpha, nodeValue)
-                        if(beta <= alpha):
-                            break
-                return (v, choosenCol, choosenShape)
-
-            else:
-                v = INFINITY
-                for cols in self.find_valid_col(state):
-                    for shape in arrShape:
-                        placement = place(state_copy, n_player, shape, cols)
-                        nodeValue = pruningTree(depth - 1, alpha, beta, state_copy, 1)[0]
-                        v = min(v, nodeValue)
-
-                        if(nodeValue > v):
-                            choosenCol = cols
-                            choosenShape = shape
-
-                        beta = min(beta, nodeValue)
-                        if(beta <= alpha):
-                            break
-                return (v, choosenCol, choosenShape)
-
-        except Exception:
-            return(0, choosenCol, choosenShape)
+    '''
     
-    def find_valid_col(state: State):
+    
+    @params : 
+    @return : 
+    '''
+    def pruningTree(self, depth: int, alpha: int, beta: int, state: State, n_player: int, thinking_time: float):
+        # try:
+        arrReturn = []
+        state_copy = copy.deepcopy(state)
+
+        choosenCol = random.choice(self.find_valid_col(state))
+        choosenShape = random.choice(arrShape)
+
+        if(is_full(state.board) or is_win(state.board)):
+            val = self.objective_function(state_copy.board)
+            return val, choosenCol, choosenShape
+
+        if(time() > self.thinking_time):
+            raise Exception
+        
+        if(n_player):
+            v = -INFINITY
+            for cols in self.find_valid_col(state):
+                for shape in arrShape:
+                    placement = place(state_copy, n_player, shape, cols)
+                    tupVar = self.pruningTree(depth - 1, alpha, beta, state_copy, 0, thinking_time)
+                    nodeValue = tupVar[0]
+                    v = max(v, nodeValue)
+
+                    if(nodeValue > v):
+                        choosenCol = cols
+                        choosenShape = shape
+
+                    alpha = max(alpha, nodeValue)
+                    if(beta <= alpha):
+                        break
+            return v, choosenCol, choosenShape
+
+        else:
+            v = INFINITY
+            for cols in self.find_valid_col(state):
+                for shape in arrShape:
+                    placement = place(state_copy, n_player, shape, cols)
+                    tupVar = self.pruningTree(depth - 1, alpha, beta, state_copy, 0, thinking_time)
+                    nodeValue = tupVar[0]
+                    v = min(v, nodeValue)
+
+                    if(nodeValue > v):
+                        choosenCol = cols
+                        choosenShape = shape
+
+                    beta = min(beta, nodeValue)
+                    if(beta <= alpha):
+                        break
+            return v, choosenCol, choosenShape
+
+        # except Exception as error:
+        #     print(error)
+        #     choosenCol = 0 # random.choice(self.find_valid_col(state))
+        #     choosenShape = ShapeConstant.CIRCLE # random.choice(arrShape)
+        #     return 0, choosenCol, choosenShape
+    
+    '''
+    Finding all valid columns index in State.board
+    Columns is valid if ShapeConstant.BLANK in array id column
+    @params : State
+    @return : integer array
+    '''
+    def find_valid_col(self, state: State):
         validCol = []
+        arrcol = []
+        blankObj = Piece(ShapeConstant.BLANK,ColorConstant.BLACK)
 
-        for iCol in range(state.board.col):
-            arrcol = state.board.board[iCol]
+        for iCol in range(0, state.board.col - 1):
+            arrcol = state.board.board[iCol]    # get array elemen in column[iCol]
 
-            if(ShapeConstant.BLANK in arrcol):
-                validCol.append(iCol)
+            if(blankObj in arrcol):             # BLANK shape in column[iCol]
+                validCol.append(iCol)           # add iCol into array validCol
         
         return validCol
     
@@ -364,9 +374,5 @@ class Minimax:
         return diagonal_left_score
 
     def objective_function(self, board: Board):
-        print("horizontal score: " + str(self.calculate_horizontal_score(board)))
-        print("vertical score: " + str(self.calculate_vertical_score(board)))
-        print("diagonal right score: " + str(self.calculate_diagonal_right_score(board)))
-        print("diagonal left score: " + str(self.calculate_diagonal_left_score(board)))
         return self.calculate_horizontal_score(board) + self.calculate_vertical_score(board) + self.calculate_diagonal_right_score(board) + self.calculate_diagonal_left_score(board)
     
