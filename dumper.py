@@ -3,6 +3,7 @@ from src.constant import Path
 from src.utility import dump
 
 def dumper(path_b1, path_b2, path_pvb):
+    # model = LocalSearchGroup3()
     model = MinimaxGroup3()
     dump(model, Path.BVB_P1.format(path_b1))
     dump(model, Path.BVB_P2.format(path_b2))
