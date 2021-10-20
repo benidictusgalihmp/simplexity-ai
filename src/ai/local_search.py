@@ -8,6 +8,8 @@ from src.utility import *
 
 from typing import Tuple, List
 
+from src.ai.minimax import MinimaxGroup3
+
 INFINITY = 99999999
 arrShape = [ShapeConstant.CROSS, ShapeConstant.CIRCLE]
 
@@ -31,37 +33,37 @@ class LocalSearchGroup3:
     @return :
     '''
     def localSearch(self, state, n_player):
-        choosenCol = 0
-        choosenShape = ShapeConstant.CIRCLE
-
-        if(n_player):
+        if(n_player == 0):
             v = -INFINITY
             for cols in self.find_valid_col(state):
                 for shape in arrShape:
-                    placement = place(state, n_player, shape, cols)
-                    tupVar = self.objective_function(state.board)
-                    nodeValue = tupVar
+                    state_copy = copy.deepcopy(state)
+                    placement = place(state_copy, n_player, shape, cols)
+                    tupVar = self.objective_function(state_copy.board)
+                        
+                    nodeValue = tupVar[0]
+                    if(nodeValue > v):
+                        choosen_col = cols
+                        choosen_shape = shape
                     v = max(v, nodeValue)
 
-                    if(nodeValue > v):
-                        choosenCol = cols
-                        choosenShape = shape
-            return choosenCol, choosenShape
+            return v, choosen_col, choosen_shape
 
         else:
             v = INFINITY
             for cols in self.find_valid_col(state):
                 for shape in arrShape:
-                    placement = place(state, n_player, shape, cols)
-                    tupVar = self.objective_function(state.board)
-                    nodeValue = tupVar
+                    state_copy = copy.deepcopy(state)
+                    placement = place(state_copy, n_player, shape, cols)
+                    tupVar = self.objective_function(state_copy.board)
+                        
+                    nodeValue = tupVar[0]
+                    if(nodeValue < v):
+                        choosen_col = cols
+                        choosen_shape = shape
                     v = min(v, nodeValue)
 
-                    if(nodeValue < v):
-                        choosenCol = cols
-                        choosenShape = shape
-            return choosenCol, choosenShape
-
+            return v, choosen_col, choosen_shape
 
     '''
     Finding all valid columns index in State.board
@@ -79,9 +81,9 @@ class LocalSearchGroup3:
 
             if(piece == blankObj):             # BLANK shape in column[iCol]
                 validCol.append(iCol)           # add iCol into array validCol
-
+        
         return validCol
-
+    
     def calculate_piece_score(self, piece: Piece, player_shape: str, player_color: str):
         if player_color == ColorConstant.RED and player_shape == ShapeConstant.CIRCLE:
             if piece.color == ColorConstant.RED and piece.shape == ShapeConstant.CIRCLE:
@@ -175,7 +177,7 @@ class LocalSearchGroup3:
                     horizontal_score += player1_temp_score * 999 - player2_temp_score * 999
                 else:
                     horizontal_score += player1_temp_score * count_piece - player2_temp_score * count_piece
-
+                
         return horizontal_score
 
     def calculate_vertical_score(self, board: Board):
@@ -348,3 +350,4 @@ class LocalSearchGroup3:
 
     def objective_function(self, board: Board):
         return self.calculate_horizontal_score(board) + self.calculate_vertical_score(board) + self.calculate_diagonal_right_score(board) + self.calculate_diagonal_left_score(board)
+    
