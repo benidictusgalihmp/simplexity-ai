@@ -20,8 +20,8 @@ class MinimaxGroup3:
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
 
-        choosenCol = self.pruningTree(2, -INFINITY, INFINITY, state, n_player, self.thinking_time)[1]
-        choosenShape = self.pruningTree(2, -INFINITY, INFINITY, state, n_player, self.thinking_time)[2]
+        choosenCol = self.pruningTree(3, -INFINITY, INFINITY, state, n_player, self.thinking_time)[1]
+        choosenShape = self.pruningTree(3, -INFINITY, INFINITY, state, n_player, self.thinking_time)[2]
 
         best_movement = (choosenCol, choosenShape) #minimax algorithm
 
@@ -38,15 +38,15 @@ class MinimaxGroup3:
         arrReturn = []
         state_copy = copy.deepcopy(state)
 
-        choosenCol = random.choice(self.find_valid_col(state))
-        choosenShape = random.choice(arrShape)
+        choosenCol = 0
+        choosenShape = ShapeConstant.CIRCLE
 
-        if(is_full(state.board) or is_win(state.board)):
+        if(depth == 0 or is_full(state.board) or is_win(state.board)):
             val = self.objective_function(state_copy.board)
             return val, choosenCol, choosenShape
 
-        if(time() > self.thinking_time):
-            raise Exception
+        # if(time() > self.thinking_time):
+        #     raise Exception
         
         if(n_player):
             v = -INFINITY
@@ -75,7 +75,7 @@ class MinimaxGroup3:
                     nodeValue = tupVar[0]
                     v = min(v, nodeValue)
 
-                    if(nodeValue > v):
+                    if(nodeValue < v):
                         choosenCol = cols
                         choosenShape = shape
 
@@ -374,5 +374,9 @@ class MinimaxGroup3:
         return diagonal_left_score
 
     def objective_function(self, board: Board):
+        print("horizontal score: " + str(self.calculate_horizontal_score(board)))
+        print("vertical score: " + str(self.calculate_vertical_score(board)))
+        print("diagonal right score: " + str(self.calculate_diagonal_right_score(board)))
+        print("diagonal left score: " + str(self.calculate_diagonal_left_score(board)))
         return self.calculate_horizontal_score(board) + self.calculate_vertical_score(board) + self.calculate_diagonal_right_score(board) + self.calculate_diagonal_left_score(board)
     
