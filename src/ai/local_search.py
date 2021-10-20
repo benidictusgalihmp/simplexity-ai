@@ -61,7 +61,6 @@ class LocalSearchGroup3:
                     nodeValue = tupVar
                     if(nodeValue < v):
                         choosen_col = cols
-                        print(choosen_col)
                         choosen_shape = shape
                     v = min(v, nodeValue)
             return choosen_col, choosen_shape
